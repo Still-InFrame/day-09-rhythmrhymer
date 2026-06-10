@@ -1,26 +1,85 @@
 @import "tailwindcss";
 
+/* This app is a dark hardware drum machine — dark-only, no scheme flip. */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #0b0c0f;
+  --foreground: #e7e9ee;
+
+  /* Chassis */
+  --chassis: #1a1c20;
+  --chassis-edge: #2a2d33;
+  --chassis-deep: #121316;
+
+  /* Pad glow colors (StarryPad-inspired saturated hues) */
+  --pad-red: #ff3b4d;
+  --pad-purple: #8b5cf6;
+  --pad-blue: #4d6bff;
+  --pad-cyan: #22d3ee;
+  --pad-amber: #f5a623;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-chassis: var(--chassis);
+  --color-chassis-edge: var(--chassis-edge);
+  --color-chassis-deep: var(--chassis-deep);
+  --color-pad-red: var(--pad-red);
+  --color-pad-purple: var(--pad-purple);
+  --color-pad-blue: var(--pad-blue);
+  --color-pad-cyan: var(--pad-cyan);
+  --color-pad-amber: var(--pad-amber);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+}
+
+/* Triggered-pad flash: restarted by remounting the overlay (key bump). */
+@keyframes pad-flash {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.pad-flash {
+  animation: pad-flash 150ms ease-out forwards;
+}
+
+/* Assign mode: available pads pulse green until one is chosen. */
+@keyframes pad-avail {
+  0%,
+  100% {
+    box-shadow: 0 0 8px 1px rgba(52, 211, 153, 0.35), inset 0 0 6px rgba(52, 211, 153, 0.2);
+    border-color: rgba(52, 211, 153, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 20px 4px rgba(52, 211, 153, 0.7), inset 0 0 12px rgba(52, 211, 153, 0.4);
+    border-color: rgba(52, 211, 153, 0.95);
+  }
+}
+
+.pad-avail {
+  animation: pad-avail 1.1s ease-in-out infinite;
+}
+
+@keyframes rec-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+
+.rec-pulse {
+  animation: rec-pulse 1.1s ease-in-out infinite;
 }

@@ -41,7 +41,9 @@ fi
 # OpenAI/Anthropic sk- keys on test values): Supabase keys + URL, OpenAI/Anthropic
 # (sk-, sk-proj-, sk-ant-), Google, JWTs, AWS, Stripe, private keys.
 PATTERNS='sb_secret_[A-Za-z0-9]{16,}|sb_publishable_[A-Za-z0-9]{16,}|GOCSPX-[A-Za-z0-9_-]{10,}|eyJ[A-Za-z0-9_-]{18,}\.[A-Za-z0-9_-]{18,}|-----BEGIN [A-Z ]*PRIVATE KEY-----|AKIA[0-9A-Z]{16}|[a-z0-9]{20}\.supabase\.co|SERVICE_ROLE|sk-[A-Za-z0-9_-]{24,}|sk_live_[A-Za-z0-9]{16,}'
-HITS="$(git grep --cached -nIE "$PATTERNS" 2>/dev/null || true)"
+# Exclude THIS script: its PATTERNS line contains literals (e.g. SERVICE_ROLE)
+# that match themselves and hard-block every publish. betterleaks still scans it.
+HITS="$(git grep --cached -nIE "$PATTERNS" -- ':(exclude)publish.sh' 2>/dev/null || true)"
 if [ -n "$HITS" ]; then
   echo "  [x] native scan flagged:"; echo "$HITS" | sed 's/^/      /'; FAIL=1
 fi
