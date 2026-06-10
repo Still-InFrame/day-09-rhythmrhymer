@@ -79,7 +79,7 @@ export function Pad({
         <span className="pad-avail pointer-events-none absolute inset-0 rounded-xl border-2" />
       )}
       {keyHint && (
-        <span className="absolute bottom-1.5 left-1.5 font-mono text-[8px] text-zinc-500">
+        <span className="absolute bottom-1.5 left-1.5 hidden font-mono text-[8px] text-zinc-500 md:block">
           {keyHint}
         </span>
       )}

@@ -1011,13 +1011,13 @@ export function DrumMachine() {
     <div className="flex w-full flex-col items-center">
       <Visualizer analyser={analyser} active={vizActive} />
 
-      <div className="w-full max-w-[760px] rounded-[28px] border border-chassis-edge bg-gradient-to-b from-[#212429] to-[#16181c] p-6 shadow-[0_24px_60px_rgba(0,0,0,0.7),inset_0_1px_0_rgba(255,255,255,0.06)]">
+      <div className="w-full max-w-[760px] rounded-[28px] border border-chassis-edge bg-gradient-to-b from-[#212429] to-[#16181c] p-4 shadow-[0_24px_60px_rgba(0,0,0,0.7),inset_0_1px_0_rgba(255,255,255,0.06)] sm:p-6">
         {/* header */}
-        <div className="mb-5 flex items-center justify-between">
+        <div className="mb-5 flex flex-wrap items-center justify-between gap-y-2">
           <span className="font-mono text-sm font-bold tracking-[0.35em] text-zinc-300">
             RHYTHMRHYMER
           </span>
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3 gap-y-2">
             {/* project slots */}
             <div className="flex items-center gap-1">
               {Array.from({ length: SLOT_COUNT }, (_, i) => (
@@ -1166,9 +1166,11 @@ export function DrumMachine() {
           </div>
         )}
 
-        <div className="flex gap-6">
+        {/* Phones: pads first and full width (the hero), controls stacked
+            below. md+ keeps the hardware-style two-column layout. */}
+        <div className="flex flex-col gap-5 md:flex-row md:gap-6">
           {/* left column: controls */}
-          <div className="flex w-44 shrink-0 flex-col gap-5">
+          <div className="order-2 flex w-full flex-col gap-5 md:order-1 md:w-44 md:shrink-0">
             <div className="flex justify-around">
               <Knob
                 label="BPM"
@@ -1353,7 +1355,7 @@ export function DrumMachine() {
               <div className="mt-1.5 text-center font-mono text-[10px] tracking-widest text-zinc-500">
                 {kit.name.toUpperCase()} KIT
               </div>
-              <div className="mt-0.5 text-center font-mono text-[8px] tracking-wider text-zinc-600">
+              <div className="mt-0.5 hidden text-center font-mono text-[8px] tracking-wider text-zinc-600 md:block">
                 KEYS 1-6 · SPACE ▶ · T TAP
               </div>
             </div>
@@ -1396,7 +1398,7 @@ export function DrumMachine() {
           </div>
 
           {/* pad grid */}
-          <div className="grid flex-1 grid-cols-4 gap-3">
+          <div className="order-1 grid flex-1 grid-cols-4 gap-2 sm:gap-3 md:order-2">
             {RENDER_ORDER.map((i) => (
               <Pad
                 key={i}
@@ -1451,7 +1453,7 @@ export function DrumMachine() {
                 })}
               </div>
             </div>
-            <span className="font-mono text-[8px] tracking-wider text-zinc-600">
+            <span className="hidden font-mono text-[8px] tracking-wider text-zinc-600 sm:inline">
               SHIFT+1-4 · SWITCHES ON THE BAR
             </span>
           </div>

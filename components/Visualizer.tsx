@@ -66,7 +66,7 @@ export function Visualizer({
       ref={canvasRef}
       width={760}
       height={150}
-      className={`h-[110px] w-full max-w-[760px] transition-opacity duration-700 ${
+      className={`h-[70px] w-full max-w-[760px] transition-opacity duration-700 sm:h-[110px] ${
         active ? "opacity-100" : "opacity-25"
       }`}
       aria-hidden

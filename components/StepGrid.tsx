@@ -25,7 +25,7 @@ export function StepGrid({
       <span className="font-mono text-[9px] tracking-widest text-zinc-500">
         STEPS <span style={{ color: `color-mix(in srgb, ${cv} 85%, white)` }}>{padLabel}</span>
       </span>
-      <div className="grid grid-cols-16 gap-1">
+      <div className="grid grid-cols-16 gap-[3px] sm:gap-1">
         {Array.from({ length: STEPS }, (_, i) => {
           const active = steps[i];
           const isPlayhead = i === currentStep;
@@ -37,7 +37,7 @@ export function StepGrid({
               onClick={() => onToggle(i)}
               aria-label={`step ${i + 1}`}
               aria-pressed={active}
-              className="h-7 rounded-[5px] transition-shadow duration-75"
+              className="h-9 rounded-[5px] transition-shadow duration-75 sm:h-7"
               style={{
                 background: active
                   ? `color-mix(in srgb, ${cv} ${isPlayhead ? 90 : 60}%, #15161a)`
