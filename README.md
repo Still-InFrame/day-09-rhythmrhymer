@@ -1,5 +1,7 @@
 # rhythmrhymer
 
+**Live:** https://rhythmrhymer.100dayaichallenge.com
+
 A drum machine in your browser, styled after a Donner StarryPad MIDI pad controller. Finger-drum on 16 glowing pads, program looping beats in a step sequencer, layer six instrument banks, sample your own voice onto pads, perform with filter sweeps and note repeat, then record your track and share it as a link. Every sound is synthesized live with the Web Audio API — no samples, no backend, zero runtime dependencies.
 
 Day 9 of a 100-day challenge: one new AI-built app per day.
