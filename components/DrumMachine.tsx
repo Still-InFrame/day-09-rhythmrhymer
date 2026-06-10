@@ -173,7 +173,11 @@ export function DrumMachine() {
   const [undoCount, setUndoCount] = useState(0);
   // Project slots + share feedback.
   const [currentSlot, setCurrentSlot] = useState(0);
-  const [shareState, setShareState] = useState<"idle" | "copied" | "failed">("idle");
+  const [shareState, setShareState] = useState<"idle" | "copied" | "failed" | "manual">(
+    "idle",
+  );
+  // The link shown for hand-copying when the clipboard refuses the write.
+  const [shareUrl, setShareUrl] = useState<string | null>(null);
   // A beat imported from a share URL stays UNSAVED (autosave suspended,
   // slot switching locked) until the user places it in a slot or discards it.
   const [importPending, setImportPending] = useState(false);
@@ -949,16 +953,54 @@ export function DrumMachine() {
     }
   };
 
-  const handleShare = async () => {
-    try {
-      const encoded = await encodeShare(serializeProject());
-      const url = `${window.location.origin}${window.location.pathname}?beat=${encoded}`;
-      await navigator.clipboard.writeText(url);
+  // NOT async: Safari only honors clipboard writes registered inside the
+  // click gesture, and an `await` before the write breaks that. The link is
+  // built as a promise; the clipboard strategy is chosen synchronously.
+  const handleShare = () => {
+    const urlPromise = encodeShare(serializeProject()).then(
+      (enc) => `${window.location.origin}${window.location.pathname}?beat=${enc}`,
+    );
+
+    const succeed = () => {
       setShareState("copied");
-    } catch {
+      setTimeout(() => setShareState("idle"), 1500);
+    };
+    // Clipboard refused — surface the link for hand-copying instead of a
+    // dead-end FAILED.
+    const manual = (url: string) => {
+      setShareUrl(url);
+      setShareState("manual");
+    };
+    const encodeFailed = () => {
       setShareState("failed");
+      setTimeout(() => setShareState("idle"), 1500);
+    };
+
+    // Preferred: ClipboardItem accepts promised content, keeping the write
+    // inside the original gesture (the Safari-sanctioned async pattern).
+    if (typeof ClipboardItem !== "undefined" && navigator.clipboard?.write) {
+      try {
+        const item = new ClipboardItem({
+          "text/plain": urlPromise.then((u) => new Blob([u], { type: "text/plain" })),
+        });
+        navigator.clipboard
+          .write([item])
+          .then(succeed)
+          .catch(() => urlPromise.then(manual).catch(encodeFailed));
+        return;
+      } catch {
+        // ClipboardItem exists but promised payloads aren't supported here —
+        // fall through to writeText.
+      }
     }
-    setTimeout(() => setShareState("idle"), 1500);
+
+    urlPromise.then((u) => {
+      if (navigator.clipboard?.writeText) {
+        navigator.clipboard.writeText(u).then(succeed, () => manual(u));
+      } else {
+        manual(u);
+      }
+    }, encodeFailed);
   };
 
   const kit = KITS[kitIndex];
@@ -1023,7 +1065,11 @@ export function DrumMachine() {
                     : "border-chassis-edge bg-[#1c1f24] text-zinc-400 hover:text-zinc-200"
               }`}
             >
-              {shareState === "copied" ? "COPIED" : shareState === "failed" ? "FAILED" : "SHARE"}
+              {shareState === "copied"
+                ? "COPIED"
+                : shareState === "failed"
+                  ? "FAILED"
+                  : "SHARE"}
             </button>
             {recording && (
               <span className="rec-pulse font-mono text-xs font-bold text-red-500">
@@ -1035,6 +1081,38 @@ export function DrumMachine() {
             </span>
           </div>
         </div>
+
+        {/* manual share-link row: clipboard refused, so hand the URL over */}
+        {shareState === "manual" && shareUrl && (
+          <div className="mb-4 flex items-center gap-2 rounded-lg border border-emerald-400/40 bg-emerald-400/10 px-3 py-2">
+            <span className="whitespace-nowrap font-mono text-[10px] font-bold tracking-wider text-emerald-200">
+              SHARE LINK
+            </span>
+            <input
+              readOnly
+              autoFocus
+              value={shareUrl}
+              onFocus={(e) => e.currentTarget.select()}
+              onClick={(e) => e.currentTarget.select()}
+              aria-label="share link for manual copy"
+              className="h-6 min-w-0 flex-1 rounded border border-chassis-edge bg-[#101216] px-2 font-mono text-[10px] text-zinc-300 outline-none"
+            />
+            <span className="whitespace-nowrap font-mono text-[9px] text-zinc-500">
+              copy it (⌘C)
+            </span>
+            <button
+              type="button"
+              onClick={() => {
+                setShareState("idle");
+                setShareUrl(null);
+              }}
+              aria-label="close share link"
+              className="h-6 rounded border border-chassis-edge bg-[#1c1f24] px-2 font-mono text-[9px] text-zinc-400 transition-colors hover:text-zinc-200"
+            >
+              ✕
+            </button>
+          </div>
+        )}
 
         {/* imported-beat placement banner */}
         {importPending && (
